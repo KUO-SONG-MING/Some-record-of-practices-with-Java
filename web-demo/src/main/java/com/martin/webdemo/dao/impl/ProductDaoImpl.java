@@ -26,21 +26,55 @@ public class ProductDaoImpl implements ProductDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public List<Product> getProducts(ProductQueryParams productQueryParams) {
-        String sql = "SELECT product_id,product_name, category, image_url, price, stock, description, created_date, last_modified_date " +
-                     "FROM product WHERE 1=1";
+    public  Integer countProducts(ProductQueryParams productQueryParams)
+    {
+        String sql = "SELECT count(*) from product WHERE 1 =1";
+
         Map<String,Object> map = new HashMap<>();
 
+        //category filter
         if(productQueryParams.getProductCategory() != null){
             sql = sql + " AND category = :category";
             map.put("category",productQueryParams.getProductCategory().name());
         }
 
+        //keyword filter
         if(productQueryParams.getSearch() != null)
         {
             sql = sql + " AND product_name LIKE :search";
             map.put("search", "%" + productQueryParams.getSearch() + "%");
         }
+
+        Integer total = namedParameterJdbcTemplate.queryForObject(sql,map, Integer.class);
+
+        return total;
+    }
+
+    @Override
+    public List<Product> getProducts(ProductQueryParams productQueryParams) {
+        String sql = "SELECT product_id,product_name, category, image_url, price, stock, description, created_date, last_modified_date " +
+                     "FROM product WHERE 1=1";
+
+        Map<String,Object> map = new HashMap<>();
+
+        //category filter
+        if(productQueryParams.getProductCategory() != null){
+            sql = sql + " AND category = :category";
+            map.put("category",productQueryParams.getProductCategory().name());
+        }
+
+        //keyword filter
+        if(productQueryParams.getSearch() != null)
+        {
+            sql = sql + " AND product_name LIKE :search";
+            map.put("search", "%" + productQueryParams.getSearch() + "%");
+        }
+
+        //sorting&paging
+        sql += " ORDER BY " + productQueryParams.getOrderby() + " " + productQueryParams.getSort() +
+                " LIMIT :limit OFFSET :offset";
+        map.put("limit",productQueryParams.getLimit());
+        map.put("offset",productQueryParams.getOffset());
 
         List<Product> querys = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
         return querys;

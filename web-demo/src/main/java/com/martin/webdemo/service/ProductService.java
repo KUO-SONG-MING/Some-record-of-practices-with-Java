@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface ProductService {
+    Integer countProducts(ProductQueryParams productQueryParams);
     Product getProductById(Integer productId);
     Integer createProduct(ProductRequest productRequest);
     void updateProduct(Integer productId, ProductRequest productRequest);
