@@ -1,6 +1,8 @@
 package com.martin.webdemo.dao.impl;
 
+import com.martin.webdemo.constant.ProductCategory;
 import com.martin.webdemo.dao.ProductDao;
+import com.martin.webdemo.dto.ProductQueryParams;
 import com.martin.webdemo.dto.ProductRequest;
 import com.martin.webdemo.model.Product;
 import com.martin.webdemo.rowmapper.ProductRowMapper;
@@ -22,6 +24,27 @@ public class ProductDaoImpl implements ProductDao {
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Override
+    public List<Product> getProducts(ProductQueryParams productQueryParams) {
+        String sql = "SELECT product_id,product_name, category, image_url, price, stock, description, created_date, last_modified_date " +
+                     "FROM product WHERE 1=1";
+        Map<String,Object> map = new HashMap<>();
+
+        if(productQueryParams.getProductCategory() != null){
+            sql = sql + " AND category = :category";
+            map.put("category",productQueryParams.getProductCategory().name());
+        }
+
+        if(productQueryParams.getSearch() != null)
+        {
+            sql = sql + " AND product_name LIKE :search";
+            map.put("search", "%" + productQueryParams.getSearch() + "%");
+        }
+
+        List<Product> querys = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
+        return querys;
+    }
 
     public Product getProductById(Integer productId)
     {

@@ -1,5 +1,7 @@
 package com.martin.webdemo.controller;
 
+import com.martin.webdemo.constant.ProductCategory;
+import com.martin.webdemo.dto.ProductQueryParams;
 import com.martin.webdemo.dto.ProductRequest;
 import com.martin.webdemo.model.Product;
 import com.martin.webdemo.service.ProductService;
@@ -9,12 +11,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.lang.module.ModuleDescriptor;
+import java.util.List;
 
 @RestController
 public class ProductController {
 
     @Autowired
     ProductService productService;
+
+    @GetMapping("/products")
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(required = false) ProductCategory productCategory,
+            @RequestParam(required = false) String search)
+    {
+        ProductQueryParams model = new ProductQueryParams();
+        model.setProductCategory(productCategory);
+        model.setSearch(search);
+
+        List<Product> products = productService.getProducts(model);
+        return ResponseEntity.status(HttpStatus.OK).body(products);
+    }
 
     @GetMapping("/products/{productId}")
     public ResponseEntity<Product> getProductById(@PathVariable Integer productId)
