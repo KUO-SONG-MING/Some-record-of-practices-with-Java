@@ -80,7 +80,7 @@ public class ProductController {
 
     @PutMapping("/products/{productId}")
     public ResponseEntity<Product> updateProduct(@PathVariable Integer productId,
-                                                 @RequestBody ProductRequest productRequest)
+                                                 @RequestBody @Valid ProductRequest productRequest)
     {
         // check whether old product is or not
         Product oldProduct = productService.getProductById(productId);
@@ -101,4 +101,5 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
 }

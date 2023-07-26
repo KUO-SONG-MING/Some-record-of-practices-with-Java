@@ -1,6 +1,5 @@
 package com.martin.webdemo.dao.impl;
 
-import com.martin.webdemo.constant.ProductCategory;
 import com.martin.webdemo.dao.ProductDao;
 import com.martin.webdemo.dto.ProductQueryParams;
 import com.martin.webdemo.dto.ProductRequest;
@@ -9,7 +8,6 @@ import com.martin.webdemo.rowmapper.ProductRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -28,22 +26,12 @@ public class ProductDaoImpl implements ProductDao {
     @Override
     public  Integer countProducts(ProductQueryParams productQueryParams)
     {
-        String sql = "SELECT count(*) from product WHERE 1 =1";
+        String sql = "SELECT count(*) from product WHERE 1 = 1";
 
         Map<String,Object> map = new HashMap<>();
 
-        //category filter
-        if(productQueryParams.getProductCategory() != null){
-            sql = sql + " AND category = :category";
-            map.put("category",productQueryParams.getProductCategory().name());
-        }
-
-        //keyword filter
-        if(productQueryParams.getSearch() != null)
-        {
-            sql = sql + " AND product_name LIKE :search";
-            map.put("search", "%" + productQueryParams.getSearch() + "%");
-        }
+        //filtering
+        sql = addFilteringSql(sql,map,productQueryParams);
 
         Integer total = namedParameterJdbcTemplate.queryForObject(sql,map, Integer.class);
 
@@ -57,18 +45,8 @@ public class ProductDaoImpl implements ProductDao {
 
         Map<String,Object> map = new HashMap<>();
 
-        //category filter
-        if(productQueryParams.getProductCategory() != null){
-            sql = sql + " AND category = :category";
-            map.put("category",productQueryParams.getProductCategory().name());
-        }
-
-        //keyword filter
-        if(productQueryParams.getSearch() != null)
-        {
-            sql = sql + " AND product_name LIKE :search";
-            map.put("search", "%" + productQueryParams.getSearch() + "%");
-        }
+        //filtering
+        sql = addFilteringSql(sql,map,productQueryParams);
 
         //sorting&paging
         sql += " ORDER BY " + productQueryParams.getOrderby() + " " + productQueryParams.getSort() +
@@ -145,5 +123,23 @@ public class ProductDaoImpl implements ProductDao {
         Map<String,Object> map = new HashMap<>();
         map.put("product_id",productId);
         namedParameterJdbcTemplate.update(sql,map);
+    }
+
+    private String addFilteringSql(String sql,Map<String,Object> map,ProductQueryParams productQueryParams)
+    {
+        //category filter
+        if(productQueryParams.getProductCategory() != null){
+            sql = sql + " AND category = :category";
+            map.put("category",productQueryParams.getProductCategory().name());
+        }
+
+        //keyword filter
+        if(productQueryParams.getSearch() != null)
+        {
+            sql = sql + " AND product_name LIKE :search";
+            map.put("search", "%" + productQueryParams.getSearch() + "%");
+        }
+
+        return sql;
     }
 }
