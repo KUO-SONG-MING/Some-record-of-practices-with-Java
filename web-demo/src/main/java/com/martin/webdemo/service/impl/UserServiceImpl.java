@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
         if(user == null)
         {
             log.warn("This account is not exist");
-            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         //encode password with md5
