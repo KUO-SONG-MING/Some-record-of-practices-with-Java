@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>line登入成功</p>
+<img th:src="${LineProfileResponse.getPictureUrl()}" style="height:250px;width:250px"/><br/>
+使用者:<span th:text="${LineProfileResponse.getDisplayName()}"></span><br/>
+</body>
+</html>

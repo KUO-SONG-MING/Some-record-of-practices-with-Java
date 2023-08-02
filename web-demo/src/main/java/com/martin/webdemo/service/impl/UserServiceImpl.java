@@ -17,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 @Component
 public class UserServiceImpl implements UserService {
-
     private final static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     UserDao userDao;
@@ -65,7 +64,27 @@ public class UserServiceImpl implements UserService {
             return user;
         } else{
             log.warn("password was wrong");
-            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Override
+    public User lineLogin(String email, String lineUserId) {
+        User user = userDao.getUserByEmail(email);
+
+        if(user == null)
+        {
+            UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
+            userRegisterRequest.setEmail(email);
+            userRegisterRequest.setPassword(lineUserId);
+            Integer userId = userDao.createUser(userRegisterRequest);
+            user = userDao.getUserById(userId);
+        }else if(!user.getPassword().equals(lineUserId))
+        {
+            log.warn("line access_token is not matched.");
+           throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        return user;
     }
 }
